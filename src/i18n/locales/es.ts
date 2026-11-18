@@ -93,6 +93,15 @@ export const es: TranslationDict = {
     adminDeptBanner: 'Vista Administrador — Departamento: {{dept}}',
     adminSwitchDept: 'Cambiar de departamento:',
     adminFullAccessNote: 'Solo el Administrador puede consultar y operar todos los departamentos.',
+    teamOrdersTitle: 'Todos los pedidos del equipo',
+    teamOrdersSubtitle:
+      'Consulta en solo lectura todos los pedidos creados, su reparto por finca y el avance en tiempo real.',
+    teamOrdersBadge: 'Vista equipo',
+    teamOrdersEmptyActive: 'No hay pedidos activos por el momento.',
+    teamOrdersEmptyCompleted: 'No hay pedidos completados por el momento.',
+    teamOrdersAwaitingFarms: 'Pendiente de asignar fincas',
+    transportNoPriority: 'No hay recogidas listas (100%) ni alertas de preparación por el momento.',
+    activeHarvestsTitle: 'Cosechas en curso',
     kpis: {
       totalOrders: 'Pedidos totales',
       urgentOrders: 'Urgentes',

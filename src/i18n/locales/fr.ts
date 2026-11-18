@@ -91,6 +91,15 @@ export const fr = {
     adminDeptBanner: 'Vue Administrateur — Département : {{dept}}',
     adminSwitchDept: 'Basculer vers un département :',
     adminFullAccessNote: 'Seul l’Administrateur peut consulter et opérer tous les départements.',
+    teamOrdersTitle: 'Toutes les commandes de l’équipe',
+    teamOrdersSubtitle:
+      'Suivez en lecture seule toutes les commandes créées, leur répartition par ferme et leur avancement en temps réel.',
+    teamOrdersBadge: 'Vue équipe',
+    teamOrdersEmptyActive: 'Aucune commande active pour le moment.',
+    teamOrdersEmptyCompleted: 'Aucune commande terminée pour le moment.',
+    teamOrdersAwaitingFarms: 'En attente de répartition entre les fermes',
+    transportNoPriority: 'Aucun enlèvement prêt (100%) ni alerte préparation pour le moment.',
+    activeHarvestsTitle: 'Récoltes en cours',
     kpis: {
       totalOrders: 'Commandes totales',
       urgentOrders: 'Urgentes',
