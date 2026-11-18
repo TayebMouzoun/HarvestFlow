@@ -45,8 +45,12 @@
   }
 
   /* Never override closed dialog display; only style open dialogs */
+  dialog:not([open]) {
+    display: none !important;
+  }
+
   dialog[open] {
-    display: flex;
+    display: flex !important;
     flex-direction: column;
   }
 }
