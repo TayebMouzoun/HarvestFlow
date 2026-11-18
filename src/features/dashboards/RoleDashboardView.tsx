@@ -1,0 +1,463 @@
+import {
+  ArrowRight,
+  BellRing,
+  CheckCircle2,
+  ClipboardList,
+  PackageCheck,
+  Plus,
+  Sprout,
+  Truck,
+} from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useHarvestFlow } from '../../context/HarvestFlowContext';
+import { formatKg } from '../../utils/format';
+import { OrderStatusBadge, PriorityBadge, ProgressBar } from '../../components/ui/Badges';
+
+interface KpiCardProps {
+  label: string;
+  value: number;
+  tone?: 'default' | 'green' | 'amber' | 'red';
+}
+
+function KpiCard({ label, value, tone = 'default' }: KpiCardProps) {
+  const styles =
+    tone === 'red'
+      ? 'border-red-200 bg-red-50/40 text-red-700'
+      : tone === 'amber'
+        ? 'border-amber-200 bg-amber-50/50 text-amber-900'
+        : tone === 'green'
+          ? 'border-emerald-200 bg-emerald-50/50 text-[#1b5e20]'
+          : 'border-emerald-900/10 bg-white text-[#1a241e]';
+
+  return (
+    <div className={`rounded-2xl border p-4 shadow-2xs ${styles}`}>
+      <div className="text-xs font-medium opacity-80">{label}</div>
+      <div className="mt-1 text-2xl font-bold">{value}</div>
+    </div>
+  );
+}
+
+export function RoleDashboardView() {
+  const { t } = useTranslation();
+  const {
+    state,
+    currentRole,
+    currentUser,
+    language,
+    setActiveTab,
+    triggerActiveReminders,
+    getFarmName,
+  } = useHarvestFlow();
+
+  const unreadCount = state.notifications.filter(
+    (n) => n.targetRole === currentRole && !n.isRead,
+  ).length;
+
+  // COMMERCIAL DASHBOARD
+  if (currentRole === 'commercial') {
+    const activeOrders = state.orders.filter((o) => o.status !== 'completed');
+    const urgentOrders = activeOrders.filter((o) => o.priority === 'urgent');
+    const completedOrders = state.orders.filter((o) => o.status === 'completed');
+
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-[#1a241e]">
+              {t('dashboard.welcome', { name: currentUser.name })}
+            </h1>
+            <p className="mt-1 text-sm text-[#5a6b60]">{t('commercial.subtitle')}</p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('workspace')}
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#1b5e20] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#144718]"
+          >
+            <Plus className="h-5 w-5" />
+            {t('commercial.createButton')}
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <KpiCard label={t('dashboard.kpis.totalOrders')} value={state.orders.length} />
+          <KpiCard label={t('dashboard.kpis.urgentOrders')} value={urgentOrders.length} tone="red" />
+          <KpiCard label={t('dashboard.kpis.inProgress')} value={activeOrders.length} tone="green" />
+          <KpiCard label={t('dashboard.kpis.completed')} value={completedOrders.length} />
+        </div>
+
+        <section className="rounded-2xl border border-emerald-900/10 bg-white p-5">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="flex items-center gap-2 text-base font-semibold text-[#1a241e]">
+              <ClipboardList className="h-4 w-4 text-[#1b5e20]" />
+              {t('nav.orders')}
+            </h2>
+            <button
+              type="button"
+              onClick={() => setActiveTab('workspace')}
+              className="inline-flex items-center gap-1 text-xs font-semibold text-[#1b5e20] hover:underline"
+            >
+              {t('dashboard.openWorkspace')}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          <div className="mt-4 divide-y divide-emerald-900/8">
+            {activeOrders.slice(0, 4).map((order) => (
+              <div key={order.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-bold text-[#1b5e20]">{order.reference}</span>
+                    <PriorityBadge priority={order.priority} />
+                    <OrderStatusBadge status={order.status} />
+                  </div>
+                  <p className="mt-1 text-sm text-[#1a241e]">
+                    {order.product} · {formatKg(order.quantityKg, language)}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('workspace')}
+                  className="rounded-xl border border-emerald-900/12 px-3 py-1.5 text-xs font-semibold text-[#435349] hover:bg-emerald-50"
+                >
+                  {t('dashboard.openWorkspace')}
+                </button>
+              </div>
+            ))}
+            {activeOrders.length === 0 && (
+              <p className="py-6 text-center text-sm text-[#5a6b60]">{t('common.noData')}</p>
+            )}
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  // FARM COORDINATOR (JUAN) DASHBOARD
+  if (currentRole === 'farm_coordinator') {
+    const pendingAllocation = state.orders.filter((o) => o.status === 'pending_allocation');
+    const readyToStart = state.orders.filter((o) => o.status === 'allocated');
+    const activeFarmCount = state.orders
+      .filter((o) => o.status === 'in_progress')
+      .flatMap((o) => o.allocations)
+      .filter((a) => a.harvestStatus === 'in_progress').length;
+
+    const attentionOrders = [...pendingAllocation, ...readyToStart];
+
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-[#1a241e]">
+              {t('dashboard.welcome', { name: currentUser.name })}
+            </h1>
+            <p className="mt-1 text-sm text-[#5a6b60]">{t('harvest.subtitle')}</p>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => triggerActiveReminders()}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3.5 text-xs font-semibold text-amber-900 hover:bg-amber-100"
+            >
+              <BellRing className="h-4 w-4" />
+              {t('harvest.simulateReminder')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('workspace')}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-[#1b5e20] px-4 text-sm font-semibold text-white hover:bg-[#144718]"
+            >
+              <Sprout className="h-4 w-4" />
+              {t('nav.harvests')}
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <KpiCard
+            label={t('dashboard.kpis.pendingAllocation')}
+            value={pendingAllocation.length}
+            tone={pendingAllocation.length > 0 ? 'amber' : 'default'}
+          />
+          <KpiCard
+            label={t('dashboard.kpis.readyToStart')}
+            value={readyToStart.length}
+            tone="default"
+          />
+          <KpiCard
+            label={t('dashboard.kpis.activeFarmsHarvesting')}
+            value={activeFarmCount}
+            tone="green"
+          />
+          <KpiCard
+            label={t('dashboard.kpis.unreadAlerts')}
+            value={unreadCount}
+            tone={unreadCount > 0 ? 'red' : 'default'}
+          />
+        </div>
+
+        <section className="rounded-2xl border border-emerald-900/10 bg-white p-5">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-base font-semibold text-[#1a241e]">{t('harvest.pendingTitle')}</h2>
+            <button
+              type="button"
+              onClick={() => setActiveTab('workspace')}
+              className="inline-flex items-center gap-1 text-xs font-semibold text-[#1b5e20] hover:underline"
+            >
+              {t('dashboard.openWorkspace')}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          <div className="mt-4 divide-y divide-emerald-900/8">
+            {attentionOrders.length === 0 ? (
+              <p className="py-6 text-center text-sm text-[#5a6b60]">{t('harvest.pendingEmpty')}</p>
+            ) : (
+              attentionOrders.map((order) => (
+                <div
+                  key={order.id}
+                  className="flex flex-wrap items-center justify-between gap-3 py-3"
+                >
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-bold text-[#1b5e20]">{order.reference}</span>
+                      <PriorityBadge priority={order.priority} />
+                      <OrderStatusBadge status={order.status} />
+                    </div>
+                    <p className="mt-1 text-sm text-[#1a241e]">
+                      {order.product} · {formatKg(order.quantityKg, language)}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('workspace')}
+                    className="rounded-xl bg-[#1b5e20] px-4 py-2 text-xs font-semibold text-white hover:bg-[#144718]"
+                  >
+                    {order.status === 'pending_allocation'
+                      ? t('harvest.allocateButton')
+                      : t('harvest.startHarvestButton')}
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  // TRANSPORT DASHBOARD
+  if (currentRole === 'transport') {
+    const threshold = state.settings.transportPrepThresholdPct;
+    const activeAllocs = state.orders
+      .filter((o) => o.status === 'in_progress' || o.status === 'completed')
+      .flatMap((order) =>
+        order.allocations
+          .filter((a) => a.harvestStatus !== 'pending')
+          .map((alloc) => ({
+            order,
+            alloc,
+            farmName: getFarmName(alloc.farmId, alloc.farmNameSnapshot),
+          })),
+      );
+
+    const ready = activeAllocs.filter((i) => i.alloc.harvestStatus === 'completed' && !i.alloc.pickupDone);
+    const prep = activeAllocs.filter(
+      (i) => i.alloc.harvestStatus === 'in_progress' && i.alloc.currentProgressPct >= threshold,
+    );
+    const inProgress = activeAllocs.filter(
+      (i) => i.alloc.harvestStatus === 'in_progress' && i.alloc.currentProgressPct < threshold,
+    );
+    const collected = activeAllocs.filter((i) => i.alloc.pickupDone);
+
+    const priorityCards = [...ready, ...prep];
+
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-[#1a241e]">
+              {t('dashboard.welcome', { name: currentUser.name })}
+            </h1>
+            <p className="mt-1 text-sm text-[#5a6b60]">{t('transport.subtitle')}</p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('workspace')}
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#1b5e20] px-5 text-sm font-semibold text-white hover:bg-[#144718]"
+          >
+            <Truck className="h-4 w-4" />
+            {t('nav.transportQueue')}
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <KpiCard
+            label={t('dashboard.kpis.readyForPickup')}
+            value={ready.length}
+            tone={ready.length > 0 ? 'green' : 'default'}
+          />
+          <KpiCard
+            label={t('dashboard.kpis.prepAlerts')}
+            value={prep.length}
+            tone={prep.length > 0 ? 'amber' : 'default'}
+          />
+          <KpiCard label={t('dashboard.kpis.inProgress')} value={inProgress.length} />
+          <KpiCard label={t('dashboard.kpis.collectedToday')} value={collected.length} />
+        </div>
+
+        <section className="rounded-2xl border border-emerald-900/10 bg-white p-5">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-base font-semibold text-[#1a241e]">
+              {t('transport.readySection')} & {t('transport.prepSection', { threshold })}
+            </h2>
+            <button
+              type="button"
+              onClick={() => setActiveTab('workspace')}
+              className="inline-flex items-center gap-1 text-xs font-semibold text-[#1b5e20] hover:underline"
+            >
+              {t('dashboard.openWorkspace')}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          <div className="mt-4 space-y-3">
+            {priorityCards.length === 0 ? (
+              <p className="py-6 text-center text-sm text-[#5a6b60]">{t('transport.emptyQueue')}</p>
+            ) : (
+              priorityCards.slice(0, 4).map(({ order, alloc, farmName }) => (
+                <div
+                  key={alloc.id}
+                  className="rounded-xl border border-emerald-900/10 bg-[#fafcfa] p-4"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-bold text-[#1b5e20]">{order.reference}</span>
+                      <PriorityBadge priority={order.priority} />
+                      <span className="text-sm font-semibold text-[#1a241e]">{farmName}</span>
+                    </div>
+                    <span className="text-sm font-bold text-[#1b5e20]">
+                      {alloc.currentProgressPct}%
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-[#5a6b60]">
+                    {order.product} · {formatKg(alloc.allocatedQtyKg, language)}
+                  </p>
+                  <div className="mt-2.5">
+                    <ProgressBar
+                      value={alloc.currentProgressPct}
+                      highlight={alloc.currentProgressPct < 100 ? 'amber' : 'green'}
+                    />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  // WAREHOUSE DASHBOARD
+  const deliveries = state.orders.flatMap((order) =>
+    order.allocations
+      .filter((a) => a.pickupDone)
+      .map((alloc) => ({
+        order,
+        alloc,
+        farmName: getFarmName(alloc.farmId, alloc.farmNameSnapshot),
+      })),
+  );
+  const incoming = deliveries.filter((d) => !d.alloc.receivedDone);
+  const incomingUrgent = incoming.filter((d) => d.order.priority === 'urgent');
+  const received = deliveries.filter((d) => d.alloc.receivedDone);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-[#1a241e]">
+            {t('dashboard.welcome', { name: currentUser.name })}
+          </h1>
+          <p className="mt-1 text-sm text-[#5a6b60]">{t('warehouse.subtitle')}</p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('workspace')}
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#1b5e20] px-5 text-sm font-semibold text-white hover:bg-[#144718]"
+        >
+          <PackageCheck className="h-4 w-4" />
+          {t('nav.warehouseQueue')}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <KpiCard
+          label={t('dashboard.kpis.expectedArrivals')}
+          value={incoming.length}
+          tone={incoming.length > 0 ? 'green' : 'default'}
+        />
+        <KpiCard
+          label={t('dashboard.kpis.urgentOrders')}
+          value={incomingUrgent.length}
+          tone={incomingUrgent.length > 0 ? 'red' : 'default'}
+        />
+        <KpiCard label={t('dashboard.kpis.receivedDeliveries')} value={received.length} />
+        <KpiCard
+          label={t('dashboard.kpis.unreadAlerts')}
+          value={unreadCount}
+          tone={unreadCount > 0 ? 'amber' : 'default'}
+        />
+      </div>
+
+      <section className="rounded-2xl border border-emerald-900/10 bg-white p-5">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-base font-semibold text-[#1a241e]">{t('warehouse.incomingSection')}</h2>
+          <button
+            type="button"
+            onClick={() => setActiveTab('workspace')}
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[#1b5e20] hover:underline"
+          >
+            {t('dashboard.openWorkspace')}
+            <ArrowRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
+
+        <div className="mt-4 divide-y divide-emerald-900/8">
+          {incoming.length === 0 ? (
+            <p className="py-6 text-center text-sm text-[#5a6b60]">{t('warehouse.emptyIncoming')}</p>
+          ) : (
+            incoming.map(({ order, alloc, farmName }) => (
+              <div
+                key={alloc.id}
+                className="flex flex-wrap items-center justify-between gap-3 py-3"
+              >
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-bold text-[#1b5e20]">{order.reference}</span>
+                    <PriorityBadge priority={order.priority} />
+                    <span className="text-sm font-semibold text-[#1a241e]">{farmName}</span>
+                  </div>
+                  <p className="mt-1 text-sm text-[#5a6b60]">
+                    {order.product} · {formatKg(alloc.allocatedQtyKg, language)}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('workspace')}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#1b5e20] px-4 py-2 text-xs font-semibold text-white hover:bg-[#144718]"
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  {t('warehouse.markReceivedButton')}
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
