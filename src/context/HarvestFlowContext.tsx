@@ -120,7 +120,7 @@ interface HarvestFlowContextValue {
   toasts: ToastMessage[];
   dismissToast: (id: string) => void;
   reminderPopupNotifications: AppNotification[];
-  dismissReminderPopup: () => void;
+  dismissReminderPopup: (notificationId?: string) => void;
   signInWithPassword: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   signInAsUser: (userId: string, showToast?: boolean) => void;
   signOut: () => void;
@@ -290,8 +290,12 @@ export function HarvestFlowProvider({ children }: { children: React.ReactNode })
     setToasts((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const dismissReminderPopup = () => {
-    setReminderPopupNotifications([]);
+  const dismissReminderPopup = (notificationId?: string) => {
+    if (!notificationId) {
+      setReminderPopupNotifications([]);
+      return;
+    }
+    setReminderPopupNotifications((prev) => prev.filter((item) => item.id !== notificationId));
   };
 
   // Detect newly arrived notifications (from Realtime, pg_cron, or timer) and surface live popups

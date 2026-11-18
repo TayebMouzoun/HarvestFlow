@@ -223,7 +223,12 @@ export const es: TranslationDict = {
     reminderPopupTitle: 'Recordatorio — Control de cosecha',
     reminderPopupSubtitle: 'Llama a los encargados de finca y actualiza el progreso de la cosecha.',
     reminderPopupAction: 'Actualizar ahora',
+    reminderPopupOpenHarvests: 'Ver cosechas',
     reminderPopupLater: 'Más tarde',
+    reminderPopupSelectStep: 'Selecciona el nuevo progreso:',
+    reminderPopupConfirmLine: '¿Confirmar cambio del {{prev}}% al {{pct}}%?',
+    reminderPopupConfirmBtn: 'Confirmar {{pct}}%',
+    reminderPopupAlreadyDone: 'Cosecha ya completada (100%).',
     confirmProgressTitle: '¿Actualizar al {{pct}}%?',
     confirmProgressBody:
       'Finca: {{farm}} ({{ref}}). El progreso pasará del {{prev}}% al {{pct}}%.',

@@ -221,7 +221,12 @@ export const fr = {
     reminderPopupTitle: 'Rappel — Suivi de récolte',
     reminderPopupSubtitle: 'Contactez les responsables de ferme et mettez à jour l’avancement.',
     reminderPopupAction: 'Mettre à jour maintenant',
+    reminderPopupOpenHarvests: 'Voir les récoltes',
     reminderPopupLater: 'Plus tard',
+    reminderPopupSelectStep: 'Sélectionnez le nouvel avancement :',
+    reminderPopupConfirmLine: 'Confirmer le passage de {{prev}}% à {{pct}}% ?',
+    reminderPopupConfirmBtn: 'Confirmer {{pct}}%',
+    reminderPopupAlreadyDone: 'Récolte déjà terminée (100%).',
     confirmProgressTitle: 'Mettre à jour à {{pct}}% ?',
     confirmProgressBody:
       'Ferme : {{farm}} ({{ref}}). L’avancement passera de {{prev}}% à {{pct}}%.',
