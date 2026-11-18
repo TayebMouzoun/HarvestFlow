@@ -418,42 +418,44 @@ export function AdminView({ mode }: { mode: AdminMode }) {
       </div>
 
       {/* Sub-navigation */}
-      <div className="flex flex-wrap gap-2 rounded-2xl border border-emerald-900/10 bg-white p-1.5">
+      <div className="grid grid-cols-3 gap-1 rounded-2xl border border-emerald-900/10 bg-white p-1">
         <button
           type="button"
           onClick={() => setMgmtTab('farms')}
-          className={`inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition ${
+          className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2 text-xs font-semibold transition sm:gap-2 sm:px-4 sm:text-sm ${
             mgmtTab === 'farms'
               ? 'bg-[#1b5e20] text-white shadow-2xs'
               : 'text-[#435349] hover:bg-emerald-50/70'
           }`}
         >
-          <Sprout className="h-4 w-4" />
-          {t('nav.farms')} ({activeFarmsCount}/{state.farms.length})
+          <Sprout className="h-4 w-4 shrink-0" />
+          <span className="truncate">{t('nav.farms')}</span>
+          <span className="hidden text-xs opacity-80 sm:inline">({activeFarmsCount}/{state.farms.length})</span>
         </button>
         <button
           type="button"
           onClick={openSettingsSubTab}
-          className={`inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition ${
+          className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2 text-xs font-semibold transition sm:gap-2 sm:px-4 sm:text-sm ${
             mgmtTab === 'settings'
               ? 'bg-[#1b5e20] text-white shadow-2xs'
               : 'text-[#435349] hover:bg-emerald-50/70'
           }`}
         >
-          <Settings className="h-4 w-4" />
-          {t('nav.settings')}
+          <Settings className="h-4 w-4 shrink-0" />
+          <span className="truncate">{t('nav.settings')}</span>
         </button>
         <button
           type="button"
           onClick={() => setMgmtTab('users')}
-          className={`inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition ${
+          className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2 text-xs font-semibold transition sm:gap-2 sm:px-4 sm:text-sm ${
             mgmtTab === 'users'
               ? 'bg-[#1b5e20] text-white shadow-2xs'
               : 'text-[#435349] hover:bg-emerald-50/70'
           }`}
         >
-          <Users className="h-4 w-4" />
-          {t('nav.users')} ({state.users.length})
+          <Users className="h-4 w-4 shrink-0" />
+          <span className="truncate">{t('nav.users')}</span>
+          <span className="hidden text-xs opacity-80 sm:inline">({state.users.length})</span>
         </button>
       </div>
 

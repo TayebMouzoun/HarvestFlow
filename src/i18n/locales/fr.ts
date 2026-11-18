@@ -20,13 +20,15 @@ export const fr = {
     loginSubtitle:
       'Mode démonstration (Phase 2) - Choisissez un compte employé pour accéder directement à son tableau de bord dédié.',
     supabaseLoginSubtitle:
-      ' ',
+      'Connectez-vous à votre espace de travail Nature Growers.',
     signInButton: 'Se connecter',
     signingIn: 'Connexion en cours…',
     invalidCredentials: 'Adresse e-mail ou mot de passe incorrect.',
     accountInactive: 'Ce compte est désactivé. Contactez un administrateur.',
     loadingWorkspace: 'Chargement de votre espace…',
     serverError: 'Erreur serveur : {{message}}',
+    portalBadge: 'Portail Collaborateurs',
+    secureBadge: 'Plateforme interne sécurisée · Nature Growers',
     demoNotice:
       'Ajoutez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY dans .env.local pour activer Supabase Auth et PostgreSQL.',
     signInAs: 'Accéder au tableau de bord',
@@ -37,6 +39,7 @@ export const fr = {
     logout: 'Déconnexion',
     signedOutToast: 'Vous êtes déconnecté.',
     signedInToast: 'Connecté en tant que {{name}} ({{role}}).',
+    allRightsReserved: 'Tous droits réservés',
   },
   roles: {
     admin: 'Administrateur',
@@ -82,6 +85,18 @@ export const fr = {
     history: 'Historique',
     notifications: 'Notifications',
     profile: 'Profil',
+  },
+  navMobile: {
+    dashboard: 'Accueil',
+    orders: 'Commandes',
+    harvests: 'Récoltes',
+    processTracking: 'Suivi',
+    transportQueue: 'Enlèvement',
+    warehouseQueue: 'Réception',
+    departments: 'Services',
+    management: 'Gestion',
+    notifications: 'Alertes',
+    history: 'Historique',
   },
   dashboard: {
     welcome: 'Bonjour, {{name}}',

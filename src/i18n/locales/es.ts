@@ -22,13 +22,15 @@ export const es: TranslationDict = {
     loginSubtitle:
       'Modo demostración (Fase 2) - Selecciona una cuenta de empleado para abrir directamente su panel dedicado.',
     supabaseLoginSubtitle:
-      'Inicia sesión con tu cuenta de empleado para acceder a tu espacio dedicado.',
+      'Inicia sesión en tu espacio de trabajo de Nature Growers.',
     signInButton: 'Iniciar sesión',
     signingIn: 'Iniciando sesión…',
     invalidCredentials: 'Correo electrónico o contraseña incorrectos.',
     accountInactive: 'Esta cuenta está desactivada. Contacta con un administrador.',
     loadingWorkspace: 'Cargando tu espacio…',
     serverError: 'Error del servidor: {{message}}',
+    portalBadge: 'Portal de Empleados',
+    secureBadge: 'Plataforma interna segura · Nature Growers',
     demoNotice:
       'Añade VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY en .env.local para activar Supabase Auth y PostgreSQL.',
     signInAs: 'Entrar al panel',
@@ -39,6 +41,7 @@ export const es: TranslationDict = {
     logout: 'Cerrar sesión',
     signedOutToast: 'Sesión cerrada.',
     signedInToast: 'Conectado como {{name}} ({{role}}).',
+    allRightsReserved: 'Todos los derechos reservados',
   },
   roles: {
     admin: 'Administrador',
@@ -84,6 +87,18 @@ export const es: TranslationDict = {
     history: 'Historial',
     notifications: 'Notificaciones',
     profile: 'Perfil',
+  },
+  navMobile: {
+    dashboard: 'Inicio',
+    orders: 'Pedidos',
+    harvests: 'Cosechas',
+    processTracking: 'Seguimiento',
+    transportQueue: 'Recogidas',
+    warehouseQueue: 'Recepción',
+    departments: 'Dptos',
+    management: 'Ajustes',
+    notifications: 'Alertas',
+    history: 'Historial',
   },
   dashboard: {
     welcome: 'Hola, {{name}}',

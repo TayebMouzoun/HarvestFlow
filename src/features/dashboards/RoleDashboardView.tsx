@@ -27,17 +27,19 @@ interface KpiCardProps {
 function KpiCard({ label, value, tone = 'default' }: KpiCardProps) {
   const styles =
     tone === 'red'
-      ? 'border-red-200 bg-red-50/40 text-red-700'
+      ? 'border-red-200/80 bg-red-50/50 text-red-700'
       : tone === 'amber'
-        ? 'border-amber-200 bg-amber-50/50 text-amber-900'
+        ? 'border-amber-200/80 bg-amber-50/60 text-amber-900'
         : tone === 'green'
-          ? 'border-emerald-200 bg-emerald-50/50 text-[#1b5e20]'
-          : 'border-emerald-900/10 bg-white text-[#1a241e]';
+          ? 'border-emerald-200/80 bg-emerald-50/60 text-[#1b5e20]'
+          : 'border-emerald-950/8 bg-white text-[#1a241e]';
 
   return (
-    <div className={`rounded-2xl border p-4 shadow-2xs ${styles}`}>
-      <div className="text-xs font-medium opacity-80">{label}</div>
-      <div className="mt-1 text-2xl font-bold">{value}</div>
+    <div className={`rounded-2xl border p-3.5 shadow-2xs transition sm:p-4.5 ${styles}`}>
+      <div className="truncate text-[11px] font-semibold uppercase tracking-wider opacity-75 sm:text-xs">
+        {label}
+      </div>
+      <div className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">{value}</div>
     </div>
   );
 }
@@ -116,12 +118,12 @@ function TeamOrdersOverview({
           <p className="mt-1 text-xs text-[#5a6b60]">{t('dashboard.teamOrdersSubtitle')}</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="inline-flex rounded-xl border border-emerald-900/12 bg-[#f6f9f6] p-0.5">
+        <div className="flex w-full flex-wrap items-center justify-between gap-2 sm:w-auto">
+          <div className="inline-flex w-full rounded-xl border border-emerald-900/12 bg-[#f6f9f6] p-0.5 sm:w-auto">
             <button
               type="button"
               onClick={() => setFilter('active')}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+              className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition sm:flex-initial ${
                 filter === 'active'
                   ? 'bg-[#1b5e20] text-white shadow-2xs'
                   : 'text-[#435349] hover:text-[#1b5e20]'
@@ -132,7 +134,7 @@ function TeamOrdersOverview({
             <button
               type="button"
               onClick={() => setFilter('completed')}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+              className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition sm:flex-initial ${
                 filter === 'completed'
                   ? 'bg-[#1b5e20] text-white shadow-2xs'
                   : 'text-[#435349] hover:text-[#1b5e20]'

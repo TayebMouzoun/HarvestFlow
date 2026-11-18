@@ -60,11 +60,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     state,
     currentRole,
     currentUser,
-    language,
     activeTab,
     setActiveTab,
     switchDemoRole,
-    setLanguage,
     resetDemoData,
   } = useHarvestFlow();
 
@@ -174,49 +172,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </button>
             <div className="hidden h-7 w-px bg-emerald-900/12 sm:block" aria-hidden="true" />
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                <span className="truncate rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-[#1b5e20] ring-1 ring-emerald-700/15">
-                  {t(`roles.${currentRole}`)}
-                </span>
-              </div>
+              <span className="truncate rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-[#1b5e20] ring-1 ring-emerald-700/15">
+                <span className="sm:hidden">{t(`rolesShort.${currentRole}`)}</span>
+                <span className="hidden sm:inline">{t(`roles.${currentRole}`)}</span>
+              </span>
               <p className="hidden text-xs text-[#5a6b60] md:block">{t('app.tagline')}</p>
             </div>
           </div>
 
-          {/* Right Controls: Language, Notifications, Profile, optional Demo restore */}
-          <div className="flex items-center gap-2">
+          {/* Right Controls: Notifications, Profile, optional Demo restore */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {isDemoMode && !showDemoBar && (
               <button
                 type="button"
                 onClick={() => setShowDemoBar(true)}
-                className="inline-flex h-10 items-center gap-1 rounded-xl border border-amber-300 bg-amber-50 px-2.5 text-xs font-semibold text-amber-900 hover:bg-amber-100"
+                className="inline-flex h-9 items-center gap-1 rounded-xl border border-amber-300 bg-amber-50 px-2 text-xs font-semibold text-amber-900 hover:bg-amber-100"
               >
                 <FlaskConical className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">{t('app.demoBannerShow')}</span>
               </button>
             )}
-
-            {/* Saved Language Toggle */}
-            <div
-              role="group"
-              aria-label={t('app.language')}
-              className="inline-flex rounded-xl border border-emerald-900/12 bg-[#f6f9f6] p-0.5"
-            >
-              {(['fr', 'es'] as const).map((lang) => (
-                <button
-                  key={lang}
-                  type="button"
-                  onClick={() => setLanguage(lang)}
-                  className={`rounded-lg px-2.5 py-1.5 text-xs font-bold uppercase transition ${
-                    language === lang
-                      ? 'bg-[#1b5e20] text-white shadow-2xs'
-                      : 'text-[#5a6b60] hover:text-[#1a241e]'
-                  }`}
-                >
-                  {lang}
-                </button>
-              ))}
-            </div>
 
             {/* Quick Notification Drawer Trigger (hidden for read-only viewer) */}
             {currentRole !== 'viewer' && (
@@ -224,7 +199,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 type="button"
                 onClick={() => setNotifDrawerOpen(true)}
                 aria-label={t('notifications.title')}
-                className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-900/12 bg-white text-[#1a241e] transition hover:bg-emerald-50"
+                className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-900/12 bg-white text-[#1a241e] shadow-2xs transition hover:bg-emerald-50 active:scale-95"
               >
                 <Bell className="h-5 w-5" />
                 {currentUnread > 0 && (
@@ -240,7 +215,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               type="button"
               onClick={() => setProfileOpen(true)}
               aria-label={t('nav.profile')}
-              className="inline-flex h-10 items-center gap-2 rounded-xl border border-emerald-900/12 bg-white pl-1.5 pr-3 text-xs font-semibold text-[#1a241e] transition hover:bg-emerald-50"
+              className="inline-flex h-10 items-center gap-2 rounded-xl border border-emerald-900/12 bg-white pl-1.5 pr-2.5 text-xs font-semibold text-[#1a241e] shadow-2xs transition hover:bg-emerald-50 active:scale-95 sm:pr-3"
             >
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-xs font-bold text-[#1b5e20]">
                 {currentUser.initials}
@@ -290,12 +265,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">{children}</main>
+      <main className="mx-auto max-w-5xl px-3.5 pt-4 pb-28 sm:px-6 sm:py-8 sm:pb-32 lg:pb-12">
+        {children}
+      </main>
 
       {/* Mobile Bottom Role-Scoped Navigation Bar (Strictly Authorized Tabs Only) */}
       <nav
         aria-label={t(`roles.${currentRole}`)}
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-emerald-900/10 bg-white/95 px-1.5 py-1.5 backdrop-blur-sm lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-emerald-950/8 bg-white/95 px-2 pt-1 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] backdrop-blur-md shadow-[0_-4px_24px_rgba(15,35,20,0.06)] lg:hidden"
       >
         <div
           className={`mx-auto grid max-w-lg gap-1 ${
@@ -310,22 +287,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             const Icon = getNavIcon(item.id, currentRole);
             const active = activeTab === item.id;
             const showUnreadBadge = item.id === 'notifications' && currentUnread > 0;
+            const navKey = item.labelKey.replace('nav.', '');
+            const mobileLabel = t(`navMobile.${navKey}`, { defaultValue: t(item.labelKey) });
 
             return (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => setActiveTab(item.id)}
-                className={`relative flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[11px] font-semibold transition ${
+                className={`relative flex min-h-[48px] flex-col items-center justify-center gap-1 rounded-xl py-1 text-[11px] font-semibold transition active:scale-95 ${
                   active
-                    ? 'bg-emerald-50 text-[#1b5e20]'
-                    : 'text-[#5a6b60] hover:bg-[#f6f9f6]'
+                    ? 'bg-emerald-50 text-[#1b5e20] shadow-2xs ring-1 ring-emerald-700/15'
+                    : 'text-[#5a6b60] hover:bg-[#f6f9f6] hover:text-[#1a241e]'
                 }`}
               >
-                <Icon className="h-5 w-5" />
-                <span className="max-w-full truncate">{t(item.labelKey)}</span>
+                <Icon className={`h-5 w-5 transition-transform ${active ? 'scale-110 text-[#1b5e20]' : 'text-[#5a6b60]'}`} />
+                <span className="max-w-full truncate text-[10px] leading-tight font-medium sm:text-[11px]">
+                  {mobileLabel}
+                </span>
                 {showUnreadBadge && (
-                  <span className="absolute right-2 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
+                  <span className="absolute right-2 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white shadow-2xs">
                     {currentUnread}
                   </span>
                 )}
