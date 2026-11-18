@@ -2,7 +2,6 @@ import {
   ArrowRight,
   ClipboardList,
   Eye,
-  Leaf,
   PackageCheck,
   ShieldCheck,
   Sprout,
@@ -30,16 +29,15 @@ export function DemoLoginView() {
   return (
     <div className="flex min-h-dvh flex-col bg-[#f6f9f6]">
       <header className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-5 sm:px-6">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1b5e20] text-white shadow-xs">
-            <Leaf className="h-5 w-5" />
-          </div>
-          <div>
-            <span className="text-base font-bold tracking-tight text-[#1a241e]">
-              {t('app.name')}
-            </span>
-            <p className="text-xs text-[#5a6b60]">{t('app.tagline')}</p>
-          </div>
+        <div className="flex items-center gap-3">
+          <img
+            src="/company-logo.png"
+            alt="Nature Growers"
+            className="h-10 w-auto object-contain sm:h-11"
+          />
+          <p className="hidden border-l border-emerald-900/12 pl-3 text-xs text-[#5a6b60] sm:block">
+            {t('app.tagline')}
+          </p>
         </div>
 
         <div

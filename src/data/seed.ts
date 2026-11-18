@@ -84,6 +84,7 @@ export function createInitialSeedState(): HarvestFlowState {
       progressSteps: [30, 50, 70, 100],
       reminderIntervalMinutes: 60,
       transportPrepThresholdPct: 70,
+      productSuggestions: [...PRODUCT_SUGGESTIONS],
     },
     farms: [
       {
@@ -134,7 +135,7 @@ export function createInitialSeedState(): HarvestFlowState {
         product: 'Poivrons rouges',
         quantityKg: 10000,
         priority: 'urgent',
-        notes: 'Export client prioritaire — départ camion avant 18h00.',
+        notes: 'Export client prioritaire - départ camion avant 18h00.',
         status: 'in_progress',
         createdBy: 'Claire Moreau',
         createdAt: minsAgo(220),

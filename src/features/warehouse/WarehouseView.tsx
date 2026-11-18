@@ -103,7 +103,7 @@ export function WarehouseView() {
                     <h3 className="mt-2 text-lg font-semibold text-[#1a241e]">
                       {item.order.product}{' '}
                       <span className="font-normal text-[#5a6b60]">
-                        — {formatKg(item.alloc.allocatedQtyKg, language)}
+                        - {formatKg(item.alloc.allocatedQtyKg, language)}
                       </span>
                     </h3>
                     <p className="mt-1 text-sm font-medium text-[#435349]">{item.farmName}</p>

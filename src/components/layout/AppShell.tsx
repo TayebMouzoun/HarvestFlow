@@ -7,7 +7,6 @@ import {
   FlaskConical,
   History,
   LayoutDashboard,
-  Leaf,
   PackageCheck,
   RotateCcw,
   Settings2,
@@ -159,26 +158,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Real Application Header */}
       <header className="sticky top-0 z-30 border-b border-emerald-900/10 bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          {/* Brand + Authorized Role Label */}
-          <div className="flex items-center gap-2.5">
+          {/* Company Brand Logo + Authorized Role Label */}
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
             <button
               type="button"
               onClick={() => setActiveTab('dashboard')}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1b5e20] text-white shadow-2xs transition hover:bg-[#144718]"
+              className="flex shrink-0 items-center rounded-xl py-0.5 transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b5e20]"
               aria-label={t('nav.dashboard')}
             >
-              <Leaf className="h-5 w-5" />
+              <img
+                src="/company-logo.png"
+                alt="Nature Growers"
+                className="h-8 w-auto object-contain sm:h-10"
+              />
             </button>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-base font-bold tracking-tight text-[#1a241e]">
-                  {t('app.name')}
-                </span>
-                <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-[#1b5e20] ring-1 ring-emerald-700/15">
+            <div className="hidden h-7 w-px bg-emerald-900/12 sm:block" aria-hidden="true" />
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <span className="truncate rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-[#1b5e20] ring-1 ring-emerald-700/15">
                   {t(`roles.${currentRole}`)}
                 </span>
               </div>
-              <p className="hidden text-xs text-[#5a6b60] sm:block">{t('app.tagline')}</p>
+              <p className="hidden text-xs text-[#5a6b60] md:block">{t('app.tagline')}</p>
             </div>
           </div>
 

@@ -33,14 +33,14 @@ self.addEventListener('push', (event) => {
     }
   }
 
-  const title = data.title || 'HarvestFlow';
+  const title = data.title || 'Nature Growers';
   const isUrgent = data.severity === 'urgent';
 
   event.waitUntil(
     self.registration.showNotification(title, {
       body: data.body || '',
-      icon: '/icons/icon.svg',
-      badge: '/favicon.svg',
+      icon: '/icons/icon-192.png',
+      badge: '/favicon.png',
       tag: isUrgent ? `hf-urgent-${Date.now()}` : 'hf-update',
       requireInteraction: isUrgent,
       data: { url: data.url || '/' },

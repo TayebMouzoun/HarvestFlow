@@ -1,5 +1,5 @@
 -- ============================================================================
--- HarvestFlow Version 1 — Hardened Supabase PostgreSQL Migration
+-- HarvestFlow Version 1 - Hardened Supabase PostgreSQL Migration
 -- Single Source of Truth (Supabase PostgreSQL ONLY)
 -- Roles: admin, commercial, farm_coordinator, transport, warehouse, viewer
 --
@@ -609,7 +609,7 @@ begin
 end;
 $$;
 
--- 8.2 Save Farm Allocations (Juan / Admin) — Does NOT start harvesting!
+-- 8.2 Save Farm Allocations (Juan / Admin) - Does NOT start harvesting!
 -- Validates duplicates, active farms, positive integer quantities, and exact sum atomically.
 create or replace function public.rpc_save_order_allocations(
   p_order_id uuid,
@@ -797,7 +797,7 @@ begin
 end;
 $$;
 
--- 8.4 Update Farm Progress (Juan / Admin) — Strictly Forward-Only!
+-- 8.4 Update Farm Progress (Juan / Admin) - Strictly Forward-Only!
 create or replace function public.rpc_update_farm_progress(
   p_order_id uuid,
   p_allocation_id uuid,
@@ -1607,7 +1607,7 @@ revoke all on function public.rpc_mark_all_notifications_read() from public, ano
 grant execute on function public.rpc_mark_all_notifications_read() to authenticated;
 
 -- ----------------------------------------------------------------------------
--- 10. Realtime Publication (Explicit Per-Table Check — Fails Loudly on Error)
+-- 10. Realtime Publication (Explicit Per-Table Check - Fails Loudly on Error)
 -- ----------------------------------------------------------------------------
 do $$
 declare

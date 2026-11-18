@@ -100,6 +100,9 @@ export function AdminView({ mode }: { mode: AdminMode }) {
   const [stepsDraft, setStepsDraft] = useState<number[]>(state.settings.progressSteps);
   const [newStepInput, setNewStepInput] = useState('');
   const [stepError, setStepError] = useState<string | null>(null);
+  const [productsDraft, setProductsDraft] = useState<string[]>(state.settings.productSuggestions);
+  const [newProductInput, setNewProductInput] = useState('');
+  const [productError, setProductError] = useState<string | null>(null);
   const [reminderInterval, setReminderInterval] = useState(
     String(state.settings.reminderIntervalMinutes),
   );
@@ -165,9 +168,12 @@ export function AdminView({ mode }: { mode: AdminMode }) {
 
   const openSettingsSubTab = () => {
     setStepsDraft(state.settings.progressSteps);
+    setProductsDraft(state.settings.productSuggestions);
     setReminderInterval(String(state.settings.reminderIntervalMinutes));
     setPrepThreshold(String(state.settings.transportPrepThresholdPct));
     setStepError(null);
+    setProductError(null);
+    setNewProductInput('');
     setMgmtTab('settings');
   };
 
@@ -216,12 +222,32 @@ export function AdminView({ mode }: { mode: AdminMode }) {
     setStepsDraft((prev) => prev.filter((n) => n !== val));
   };
 
+  const handleAddProduct = () => {
+    setProductError(null);
+    const trimmed = newProductInput.trim();
+    if (!trimmed) {
+      setProductError(t('admin.productEmptyError'));
+      return;
+    }
+    if (productsDraft.some((p) => p.toLowerCase() === trimmed.toLowerCase())) {
+      setProductError(t('admin.productDuplicateError'));
+      return;
+    }
+    setProductsDraft((prev) => [...prev, trimmed.slice(0, 80)]);
+    setNewProductInput('');
+  };
+
+  const handleRemoveProduct = (name: string) => {
+    setProductsDraft((prev) => prev.filter((p) => p !== name));
+  };
+
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
     updateHarvestSettings({
       progressSteps: stepsDraft,
       reminderIntervalMinutes: Number(reminderInterval) || 60,
       transportPrepThresholdPct: Number(prepThreshold) || 70,
+      productSuggestions: productsDraft,
     });
   };
 
@@ -649,6 +675,65 @@ export function AdminView({ mode }: { mode: AdminMode }) {
               </button>
             </div>
             {stepError && <p className="text-xs font-medium text-red-600">{stepError}</p>}
+          </div>
+
+          {/* Agricultural Product Quick-Suggestions */}
+          <div className="space-y-3 border-t border-emerald-900/8 pt-5">
+            <div>
+              <label className="block text-sm font-semibold text-[#1a241e]">
+                {t('admin.productsTitle')}
+              </label>
+              <p className="mt-0.5 text-xs text-[#5a6b60]">{t('admin.productsHint')}</p>
+            </div>
+
+            {productsDraft.length === 0 ? (
+              <p className="text-xs italic text-[#5a6b60]">{t('admin.productsEmpty')}</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {productsDraft.map((prod) => (
+                  <span
+                    key={prod}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-900/15 bg-[#f6f9f6] px-3 py-2 text-sm font-semibold text-[#1a241e]"
+                  >
+                    {prod}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveProduct(prod)}
+                      aria-label={`${t('common.close')} ${prod}`}
+                      className="rounded-md p-0.5 text-[#5a6b60] hover:bg-red-50 hover:text-red-600"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2 sm:max-w-md sm:flex-row">
+              <input
+                type="text"
+                maxLength={80}
+                value={newProductInput}
+                onChange={(e) => setNewProductInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddProduct();
+                  }
+                }}
+                placeholder={t('admin.addProductPlaceholder')}
+                className="min-h-11 flex-1 rounded-xl border border-emerald-900/15 px-3.5 text-sm outline-none focus:border-[#1b5e20]"
+              />
+              <button
+                type="button"
+                onClick={handleAddProduct}
+                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-[#1b5e20] px-4 text-sm font-semibold text-[#1b5e20] hover:bg-emerald-50"
+              >
+                <Plus className="h-4 w-4" />
+                {t('admin.addProductButton')}
+              </button>
+            </div>
+            {productError && <p className="text-xs font-medium text-red-600">{productError}</p>}
           </div>
 
           <div className="space-y-2 border-t border-emerald-900/8 pt-5">

@@ -6,7 +6,7 @@ export function formatKg(qty: number, lang: Language): string {
 }
 
 export function formatTime(iso?: string, lang: Language = 'fr'): string {
-  if (!iso) return '—';
+  if (!iso) return '-';
   const locale = lang === 'es' ? 'es-ES' : 'fr-FR';
   return new Intl.DateTimeFormat(locale, {
     hour: '2-digit',
@@ -15,7 +15,7 @@ export function formatTime(iso?: string, lang: Language = 'fr'): string {
 }
 
 export function formatDateTime(iso?: string, lang: Language = 'fr'): string {
-  if (!iso) return '—';
+  if (!iso) return '-';
   const locale = lang === 'es' ? 'es-ES' : 'fr-FR';
   return new Intl.DateTimeFormat(locale, {
     day: '2-digit',

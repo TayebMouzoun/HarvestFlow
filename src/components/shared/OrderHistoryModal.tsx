@@ -23,7 +23,7 @@ export function OrderHistoryModal({ order, onClose }: OrderHistoryModalProps) {
     <ModalDialog
       open={Boolean(order)}
       onClose={onClose}
-      title={order ? `${t('history.title')} — ${order.reference}` : t('history.title')}
+      title={order ? `${t('history.title')} - ${order.reference}` : t('history.title')}
       subtitle={order ? `${order.product} · ${formatKg(order.quantityKg, language)}` : undefined}
       maxWidthClass="max-w-xl"
     >

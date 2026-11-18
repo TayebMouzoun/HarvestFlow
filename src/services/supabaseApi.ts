@@ -1,3 +1,4 @@
+import { PRODUCT_SUGGESTIONS } from '../data/seed';
 import { supabase } from '../lib/supabase';
 import type {
   AppNotification,
@@ -57,6 +58,7 @@ interface StepRow {
 interface SettingsRow {
   harvest_reminder_interval_minutes: number;
   transport_prep_alert_threshold_pct: number;
+  product_suggestions?: string[] | null;
 }
 
 interface OrderRow {
@@ -192,7 +194,7 @@ export async function fetchWorkspaceSnapshot(currentUser: DemoUser): Promise<Har
     client.from('harvest_progress_steps').select('percentage').order('percentage', { ascending: true }),
     client
       .from('app_settings')
-      .select('harvest_reminder_interval_minutes, transport_prep_alert_threshold_pct')
+      .select('*')
       .eq('singleton', true)
       .maybeSingle(),
     client.from('orders').select('*').order('created_at', { ascending: false }).limit(200),
@@ -233,6 +235,9 @@ export async function fetchWorkspaceSnapshot(currentUser: DemoUser): Promise<Har
     progressSteps: stepList.length > 0 ? stepList : [30, 50, 70, 100],
     reminderIntervalMinutes: settingsRow?.harvest_reminder_interval_minutes ?? 60,
     transportPrepThresholdPct: settingsRow?.transport_prep_alert_threshold_pct ?? 70,
+    productSuggestions: Array.isArray(settingsRow?.product_suggestions)
+      ? settingsRow.product_suggestions
+      : [...PRODUCT_SUGGESTIONS],
   };
 
   const progressByAlloc = new Map<string, HarvestProgressRecord[]>();
@@ -464,6 +469,14 @@ export async function rpcAdminUpdateHarvestSettings(settings: HarvestSettings): 
     p_steps: settings.progressSteps,
     p_reminder_interval: settings.reminderIntervalMinutes,
     p_prep_threshold: settings.transportPrepThresholdPct,
+  });
+  if (error) throw error;
+}
+
+export async function rpcAdminUpdateProductSuggestions(products: string[]): Promise<void> {
+  const client = requireClient();
+  const { error } = await client.rpc('rpc_admin_update_product_suggestions', {
+    p_products: products,
   });
   if (error) throw error;
 }

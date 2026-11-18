@@ -186,7 +186,7 @@ export function FarmCoordinatorView() {
                     <h3 className="mt-2 text-lg font-semibold text-[#1a241e]">
                       {order.product}{' '}
                       <span className="font-normal text-[#5a6b60]">
-                        — {formatKg(order.quantityKg, language)}
+                        - {formatKg(order.quantityKg, language)}
                       </span>
                     </h3>
                     {order.notes && <p className="mt-1.5 text-sm text-[#5a6b60]">{order.notes}</p>}
@@ -293,7 +293,7 @@ export function FarmCoordinatorView() {
                     <h3 className="mt-2 text-lg font-semibold text-[#1a241e]">
                       {order.product}{' '}
                       <span className="font-normal text-[#5a6b60]">
-                        — {formatKg(order.quantityKg, language)}
+                        - {formatKg(order.quantityKg, language)}
                       </span>
                     </h3>
                     {order.harvestStartedAt && (
@@ -455,7 +455,7 @@ export function FarmCoordinatorView() {
         }
         subtitle={
           allocatingOrder
-            ? `${allocatingOrder.product} — ${formatKg(allocatingOrder.quantityKg, language)}`
+            ? `${allocatingOrder.product} - ${formatKg(allocatingOrder.quantityKg, language)}`
             : undefined
         }
         maxWidthClass="max-w-xl"

@@ -6,7 +6,7 @@ import {
   type NavTabId,
   type Permission,
 } from '../auth/permissions';
-import { createInitialSeedState, INITIAL_USERS } from '../data/seed';
+import { createInitialSeedState, INITIAL_USERS, PRODUCT_SUGGESTIONS } from '../data/seed';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import {
   fetchOwnProfile,
@@ -16,6 +16,7 @@ import {
   rpcAdminToggleFarmActive,
   rpcAdminUpdateFarm,
   rpcAdminUpdateHarvestSettings,
+  rpcAdminUpdateProductSuggestions,
   rpcConfirmPickupDone,
   rpcConfirmWarehouseReceived,
   rpcCorrectFarmProgress,
@@ -98,6 +99,7 @@ const EMPTY_SUPABASE_STATE: HarvestFlowState = {
     progressSteps: [30, 50, 70, 100],
     reminderIntervalMinutes: 60,
     transportPrepThresholdPct: 70,
+    productSuggestions: [...PRODUCT_SUGGESTIONS],
   },
   orders: [],
   notifications: [],
@@ -178,6 +180,13 @@ function loadDemoState(): HarvestFlowState {
         return {
           ...createInitialSeedState(),
           ...parsed,
+          settings: {
+            ...createInitialSeedState().settings,
+            ...parsed.settings,
+            productSuggestions: Array.isArray(parsed.settings.productSuggestions)
+              ? parsed.settings.productSuggestions
+              : [...PRODUCT_SUGGESTIONS],
+          },
           users,
         };
       }
@@ -355,7 +364,7 @@ export function HarvestFlowProvider({ children }: { children: React.ReactNode })
             : notif.severity === 'success'
               ? 'success'
               : 'info';
-      pushToast(`${title} — ${body}`, tone, 6500);
+      pushToast(`${title} - ${body}`, tone, 6500);
     }
   }, [isAuthenticated, authLoading, currentUser.id, currentRole, state.notifications, pushToast, t]);
 
@@ -1537,19 +1546,47 @@ export function HarvestFlowProvider({ children }: { children: React.ReactNode })
     const safeInterval = Math.min(1440, Math.max(5, Math.round(nextSettings.reminderIntervalMinutes)));
     const safeThreshold = Math.min(99, Math.max(1, Math.round(nextSettings.transportPrepThresholdPct)));
 
+    const seenProducts = new Set<string>();
+    const cleanedProducts: string[] = [];
+    for (const raw of nextSettings.productSuggestions ?? []) {
+      const trimmed = raw.trim().slice(0, 80);
+      if (!trimmed) continue;
+      const key = trimmed.toLowerCase();
+      if (seenProducts.has(key)) continue;
+      seenProducts.add(key);
+      cleanedProducts.push(trimmed);
+    }
+
     const sanitized: HarvestSettings = {
       progressSteps: cleanedSteps,
       reminderIntervalMinutes: safeInterval,
       transportPrepThresholdPct: safeThreshold,
+      productSuggestions: cleanedProducts,
     };
 
+    const productsChanged =
+      cleanedProducts.length !== state.settings.productSuggestions.length ||
+      cleanedProducts.some((p, idx) => p !== state.settings.productSuggestions[idx]);
+
     if (backendMode === 'supabase') {
-      void rpcAdminUpdateHarvestSettings(sanitized)
-        .then(() => {
-          pushToast(t('admin.settingsSavedToast'), 'success');
-          return refreshSupabaseData();
-        })
-        .catch((err) => pushToast(t('auth.serverError', { message: extractErrorMessage(err) }), 'warning'));
+      void (async () => {
+        await rpcAdminUpdateHarvestSettings(sanitized);
+        if (productsChanged) {
+          await rpcAdminUpdateProductSuggestions(cleanedProducts);
+        }
+        pushToast(t('admin.settingsSavedToast'), 'success');
+        await refreshSupabaseData();
+      })().catch((err) => {
+        const msg = extractErrorMessage(err);
+        if (msg.includes('rpc_admin_update_product_suggestions')) {
+          pushToast(
+            'Run supabase/migrations/0004_admin_product_suggestions.sql in Supabase SQL Editor to save product suggestions.',
+            'warning',
+          );
+        } else {
+          pushToast(t('auth.serverError', { message: msg }), 'warning');
+        }
+      });
       return;
     }
 

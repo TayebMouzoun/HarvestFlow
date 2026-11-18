@@ -1,10 +1,10 @@
-# HarvestFlow — Phase 5: Production Deployment Guide (Cloudflare Pages)
+# HarvestFlow - Phase 5: Production Deployment Guide (Cloudflare Pages)
 
 Deploy HarvestFlow on **Cloudflare Pages** (Free tier, global CDN, automatic HTTPS required for PWA installation and Web Push across Windows, Android, and iPhone).
 
 ---
 
-## Step 1 — Push Your Repository to GitHub
+## Step 1 - Push Your Repository to GitHub
 Make sure `.env.local` is **never** committed (already excluded in `.gitignore`):
 
 ```zsh
@@ -20,7 +20,7 @@ git push -u origin main
 
 ---
 
-## Step 2 — Deploy to Cloudflare Pages
+## Step 2 - Deploy to Cloudflare Pages
 1. Sign in at [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages → Create → Pages → Connect to Git**.
 2. Select your `harvestflow` GitHub repository.
 3. Configure build settings:
@@ -37,7 +37,7 @@ git push -u origin main
 
 ---
 
-## Step 3 — Update Supabase Auth Allowed URLs
+## Step 3 - Update Supabase Auth Allowed URLs
 1. In **Supabase Dashboard → Authentication → URL Configuration**:
    - **Site URL:** `https://harvestflow.pages.dev` *(or your custom domain)*
    - **Redirect URLs:** add `https://harvestflow.pages.dev/**`
@@ -45,14 +45,14 @@ git push -u origin main
 
 ---
 
-## Step 4 — Install PWA & Test Across Devices
+## Step 4 - Install PWA & Test Across Devices
 - **Windows (Chrome / Edge):** Open the HTTPS URL → click the **Install** icon in the address bar → sign in → enable Push in **Profile**.
 - **Android (Chrome):** Open the HTTPS URL → tap **Install app** (or menu → **Add to Home screen**) → sign in → enable Push in **Profile**.
 - **iPhone (Safari, iOS 16.4+):** Open the HTTPS URL in Safari → tap **Share → Add to Home Screen** → open the Home Screen icon → sign in → enable Push in **Profile**.
 
 ---
 
-## Step 5 — Optional Official WhatsApp Business Cloud API
+## Step 5 - Optional Official WhatsApp Business Cloud API
 When your Meta Business account is verified and your FR/ES utility template (`harvestflow_alert` with 2 body parameters `{{1}}` and `{{2}}`) is approved:
 1. Run [`supabase/migrations/0003_whatsapp_phone_column.sql`](./supabase/migrations/0003_whatsapp_phone_column.sql) in Supabase SQL Editor and set E.164 phone numbers (e.g. `+212600000000`) on `profiles`.
 2. Deploy [`supabase/functions/dispatch-whatsapp/index.ts`](./supabase/functions/dispatch-whatsapp/index.ts).

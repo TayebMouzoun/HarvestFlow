@@ -1,5 +1,5 @@
 -- ============================================================================
--- HarvestFlow Phase 4 — Web Push Subscriptions & Notification Delivery Logs
+-- HarvestFlow Phase 4 - Web Push Subscriptions & Notification Delivery Logs
 -- Run AFTER 0001_harvestflow_v1.sql in Supabase SQL Editor.
 -- ============================================================================
 

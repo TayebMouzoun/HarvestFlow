@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { History, Plus, Search, Sprout } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useHarvestFlow } from '../../context/HarvestFlowContext';
-import { PRODUCT_SUGGESTIONS } from '../../data/seed';
 import type { Order, OrderPriority } from '../../types/domain';
 import { formatDateTime, formatKg } from '../../utils/format';
 import { OrderStatusBadge, PriorityBadge, ProgressBar } from '../../components/ui/Badges';
@@ -134,27 +133,29 @@ export function CommercialView() {
                 placeholder={t('commercial.productPlaceholder')}
                 className="hf-input mt-1.5 w-full rounded-xl border border-emerald-900/15 bg-white px-4 py-3 text-base text-[#1a241e] outline-none transition focus:border-[#1b5e20] focus:ring-2 focus:ring-emerald-700/15"
               />
-              <div className="mt-2.5">
-                <span className="text-xs font-medium text-[#5a6b60]">
-                  {t('commercial.productQuickPick')}:
-                </span>
-                <div className="mt-1.5 flex flex-wrap gap-1.5">
-                  {PRODUCT_SUGGESTIONS.map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => setProduct(item)}
-                      className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
-                        product === item
-                          ? 'bg-[#1b5e20] text-white'
-                          : 'bg-[#f6f9f6] text-[#435349] hover:bg-emerald-50'
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  ))}
+              {state.settings.productSuggestions.length > 0 && (
+                <div className="mt-2.5">
+                  <span className="text-xs font-medium text-[#5a6b60]">
+                    {t('commercial.productQuickPick')}:
+                  </span>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {state.settings.productSuggestions.map((item) => (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => setProduct(item)}
+                        className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                          product === item
+                            ? 'bg-[#1b5e20] text-white'
+                            : 'bg-[#f6f9f6] text-[#435349] hover:bg-emerald-50'
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Quantity */}
@@ -309,7 +310,7 @@ export function CommercialView() {
                         <h3 className="mt-2 text-lg font-semibold text-[#1a241e]">
                           {order.product}{' '}
                           <span className="font-normal text-[#5a6b60]">
-                            — {formatKg(order.quantityKg, language)}
+                            - {formatKg(order.quantityKg, language)}
                           </span>
                         </h3>
                       </div>

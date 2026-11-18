@@ -85,7 +85,7 @@ export function ViewerView({ mode }: ViewerViewProps) {
           <h3 className="mt-2 text-lg font-semibold text-[#1a241e]">
             {order.product}{' '}
             <span className="font-normal text-[#5a6b60]">
-              — {formatKg(order.quantityKg, language)}
+              - {formatKg(order.quantityKg, language)}
             </span>
           </h3>
           {order.notes && <p className="mt-1 text-sm text-[#5a6b60]">{order.notes}</p>}
@@ -156,7 +156,7 @@ export function ViewerView({ mode }: ViewerViewProps) {
                           ? t('status.warehouse.received')
                           : alloc.pickupDone
                             ? t('status.warehouse.in_transit')
-                            : '—'}
+                            : '-'}
                       </span>
                     </div>
                   </div>

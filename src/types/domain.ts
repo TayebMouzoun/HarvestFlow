@@ -42,6 +42,7 @@ export interface HarvestSettings {
   progressSteps: number[];
   reminderIntervalMinutes: number;
   transportPrepThresholdPct: number;
+  productSuggestions: string[];
 }
 
 export interface HarvestProgressRecord {
