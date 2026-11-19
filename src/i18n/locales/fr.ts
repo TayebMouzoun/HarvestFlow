@@ -298,7 +298,7 @@ export const fr = {
     emptyQueue: 'Aucune récolte en cours pour le moment.',
   },
   warehouse: {
-    title: 'Réception Entrepôt',
+    title: 'Réception Station',
     subtitle: 'Confirmez l’arrivée de chaque livraison en provenance des fermes.',
     incomingSection: 'Livraisons attendues',
     receivedSection: 'Réceptions précédentes',
@@ -400,7 +400,7 @@ export const fr = {
     unreadCount: '{{count}} non lue(s)',
     allSystemBadge: 'Toutes les notifications du système',
     pushTitle: 'Notifications push (appareil)',
-    pushSubtitle: 'Recevez les alertes récolte, transport et entrepôt même lorsque l’application est fermée.',
+    pushSubtitle: 'Recevez les alertes récolte, transport et la station même lorsque l’application est fermée.',
     pushActive: 'Activées sur cet appareil',
     pushInactive: 'Désactivées',
     pushBlocked: 'Bloquées dans le navigateur',
@@ -429,7 +429,7 @@ export const fr = {
       pickup_done_title: 'Livraison en route - {{ref}}',
       pickup_done_body: 'Le transport a collecté {{qty}} kg de {{product}} depuis {{farm}}.',
       order_completed_title: 'Commande terminée - {{ref}}',
-      order_completed_body: 'Toutes les fermes pour {{product}} ({{qty}} kg) ont été reçues à l’entrepôt.',
+      order_completed_body: 'Toutes les fermes pour {{product}} ({{qty}} kg) ont été reçues à la station.',
     },
   },
   history: {
