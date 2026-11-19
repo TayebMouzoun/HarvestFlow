@@ -16,7 +16,9 @@ export function OrderHistoryModal({ order, onClose }: OrderHistoryModalProps) {
   const { state, language } = useHarvestFlow();
 
   const events = order
-    ? state.history.filter((h) => h.orderId === order.id)
+    ? [...state.history]
+        .filter((h) => h.orderId === order.id || (order.reference && h.orderRef === order.reference))
+        .sort((a, b) => new Date(a.occurredAt).getTime() - new Date(b.occurredAt).getTime())
     : [];
 
   return (

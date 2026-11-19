@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useHarvestFlow } from '../../context/HarvestFlowContext';
-import type { HistoryEvent, Order, UserRole } from '../../types/domain';
+import type { HistoryEvent, Order } from '../../types/domain';
 import {
   formatDateTime,
   formatKg,
@@ -17,54 +17,6 @@ import {
   type DateRangeFilter,
 } from '../../utils/format';
 import { OrderStatusBadge, PriorityBadge } from '../ui/Badges';
-
-const ROLE_VISIBLE_ACTIONS: Record<Exclude<UserRole, 'admin'>, Set<string>> = {
-  commercial: new Set([
-    'history.actions.order_created',
-    'history.actions.farms_allocated',
-    'history.actions.harvest_started',
-    'history.actions.harvest_completed',
-    'history.actions.pickup_confirmed',
-    'history.actions.warehouse_received',
-    'history.actions.order_completed',
-  ]),
-  farm_coordinator: new Set([
-    'history.actions.order_created',
-    'history.actions.farms_allocated',
-    'history.actions.harvest_started',
-    'history.actions.progress_updated',
-    'history.actions.progress_corrected',
-    'history.actions.progress_corrected_with_reason',
-    'history.actions.harvest_completed',
-    'history.actions.pickup_confirmed',
-  ]),
-  transport: new Set([
-    'history.actions.harvest_started',
-    'history.actions.progress_updated',
-    'history.actions.progress_corrected',
-    'history.actions.progress_corrected_with_reason',
-    'history.actions.harvest_completed',
-    'history.actions.pickup_confirmed',
-    'history.actions.warehouse_received',
-  ]),
-  warehouse: new Set([
-    'history.actions.pickup_confirmed',
-    'history.actions.warehouse_received',
-    'history.actions.order_completed',
-  ]),
-  viewer: new Set([
-    'history.actions.order_created',
-    'history.actions.farms_allocated',
-    'history.actions.harvest_started',
-    'history.actions.progress_updated',
-    'history.actions.progress_corrected',
-    'history.actions.progress_corrected_with_reason',
-    'history.actions.harvest_completed',
-    'history.actions.pickup_confirmed',
-    'history.actions.warehouse_received',
-    'history.actions.order_completed',
-  ]),
-};
 
 interface OrderHistoryGroup {
   groupKey: string;
@@ -84,11 +36,11 @@ export function HistoryPage() {
   const [dateFilter, setDateFilter] = useState<DateRangeFilter>('all');
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
 
-  // 1. Filter events visible to current user's role
-  const roleEvents = useMemo(() => {
+  // 1. History events visible: all roles see the complete order history from commercial creation to completion
+  const visibleEvents = useMemo(() => {
     if (currentRole === 'admin') return state.history;
-    const allowed = ROLE_VISIBLE_ACTIONS[currentRole];
-    return state.history.filter((ev) => allowed.has(ev.actionKey));
+    // For all operational roles, include all order-related events so every role sees the full order lifecycle
+    return state.history.filter((ev) => Boolean(ev.orderId || ev.orderRef));
   }, [state.history, currentRole]);
 
   // 2. Group events by order
@@ -100,7 +52,7 @@ export function HistoryPage() {
     const ordersById = new Map(state.orders.map((o) => [o.id, o]));
     const ordersByRef = new Map(state.orders.map((o) => [o.reference.toLowerCase(), o]));
 
-    for (const ev of roleEvents) {
+    for (const ev of visibleEvents) {
       const order =
         (ev.orderId ? ordersById.get(ev.orderId) : undefined) ??
         (ev.orderRef ? ordersByRef.get(ev.orderRef.toLowerCase()) : undefined);
@@ -139,16 +91,16 @@ export function HistoryPage() {
       }
     }
 
-    // Sort events within each group chronologically (most recent first)
+    // Sort events within each group chronologically from creation (oldest) to completion (newest)
     for (const group of groupsMap.values()) {
       group.events.sort(
-        (a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime(),
+        (a, b) => new Date(a.occurredAt).getTime() - new Date(b.occurredAt).getTime(),
       );
 
-      // Infer creation date if not already assigned
+      // Infer creation date if not already assigned (oldest event is at index 0)
       if (!group.createdAt && group.events.length > 0) {
         const createEv = group.events.find((e) => e.actionKey === 'history.actions.order_created');
-        group.createdAt = createEv ? createEv.occurredAt : group.events[group.events.length - 1].occurredAt;
+        group.createdAt = createEv ? createEv.occurredAt : group.events[0].occurredAt;
       }
     }
 
@@ -162,7 +114,7 @@ export function HistoryPage() {
     );
 
     return { orderGroups: sortedGroups, generalEvents: generals };
-  }, [roleEvents, state.orders]);
+  }, [visibleEvents, state.orders]);
 
   // 3. Search and Creation Date filtering
   const filteredOrderGroups = useMemo(() => {
@@ -279,7 +231,7 @@ export function HistoryPage() {
       )}
 
       {/* Grouped History List */}
-      {roleEvents.length === 0 ? (
+      {visibleEvents.length === 0 ? (
         <div className="rounded-2xl border border-emerald-900/10 bg-white p-10 text-center text-sm text-[#5a6b60]">
           {t('history.empty')}
         </div>
