@@ -123,6 +123,29 @@ export async function enableWebPush(
       const reg = await waitForActiveServiceWorker();
       const applicationServerKey = urlBase64ToUint8Array(vapidKey);
       let sub = await reg.pushManager.getSubscription();
+
+      if (sub) {
+        // If the existing subscription was created with a previous/different VAPID key, unsubscribe it
+        const currentKeyBytes = applicationServerKey;
+        const existingKeyBytes = sub.options.applicationServerKey
+          ? new Uint8Array(sub.options.applicationServerKey)
+          : null;
+
+        const isMatching =
+          existingKeyBytes &&
+          existingKeyBytes.length === currentKeyBytes.length &&
+          existingKeyBytes.every((b, idx) => b === currentKeyBytes[idx]);
+
+        if (!isMatching) {
+          try {
+            await sub.unsubscribe();
+          } catch {
+            // ignore
+          }
+          sub = null;
+        }
+      }
+
       if (!sub) {
         try {
           sub = await reg.pushManager.subscribe({

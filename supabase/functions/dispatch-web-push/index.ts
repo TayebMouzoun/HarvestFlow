@@ -120,10 +120,16 @@ Deno.serve(async (req) => {
 
     webpush.setVapidDetails(vapidSubject, vapidPublic, vapidPrivate);
 
+    // Operational roles receive notifications targeted at them; Admins receive all operational alerts.
+    const roleFilter =
+      record.target_role === 'admin'
+        ? 'role.eq.admin'
+        : `role.eq.${record.target_role},role.eq.admin`;
+
     const { data: recipients, error: recipientsError } = await adminClient
       .from('profiles')
       .select('id, preferred_language')
-      .eq('role', record.target_role)
+      .or(roleFilter)
       .eq('is_active', true);
 
     if (recipientsError) {
