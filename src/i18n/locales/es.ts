@@ -430,8 +430,16 @@ export const es: TranslationDict = {
   history: {
     title: 'Historial del pedido',
     pageTitle: 'Historial',
-    pageSubtitle: 'Registro con fecha y hora de los eventos operativos relevantes para tu departamento.',
+    pageSubtitle: 'Registro con fecha y hora de los eventos operativos clasificados por pedido.',
     empty: 'Sin eventos registrados.',
+    searchPlaceholder: 'Buscar por referencia, producto...',
+    expandAll: 'Desplegar todo',
+    collapseAll: 'Plegar todo',
+    eventsCount_one: '{{count}} evento',
+    eventsCount_other: '{{count}} eventos',
+    latestActivity: 'Última actividad',
+    generalEvents: 'Eventos generales',
+    noMatchingOrders: 'Ningún pedido coincide con tu búsqueda.',
     actions: {
       order_created: 'Pedido creado ({{qty}} kg de {{product}}, prioridad {{priority}})',
       farms_allocated: 'Fincas seleccionadas y repartidas: {{summary}}',

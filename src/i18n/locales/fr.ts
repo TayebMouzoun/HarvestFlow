@@ -428,8 +428,16 @@ export const fr = {
   history: {
     title: 'Historique de la commande',
     pageTitle: 'Historique',
-    pageSubtitle: 'Journal horodaté des événements opérationnels pertinents pour votre département.',
+    pageSubtitle: 'Journal horodaté des événements opérationnels classés par commande.',
     empty: 'Aucun événement enregistré.',
+    searchPlaceholder: 'Rechercher par référence, produit...',
+    expandAll: 'Tout déplier',
+    collapseAll: 'Tout replier',
+    eventsCount_one: '{{count}} événement',
+    eventsCount_other: '{{count}} événements',
+    latestActivity: 'Dernière activité',
+    generalEvents: 'Événements généraux',
+    noMatchingOrders: 'Aucune commande ne correspond à votre recherche.',
     actions: {
       order_created: 'Commande créée ({{qty}} kg de {{product}}, priorité {{priority}})',
       farms_allocated: 'Fermes sélectionnées et réparties : {{summary}}',
