@@ -76,6 +76,39 @@ function renderTemplate(
   return template;
 }
 
+function sanitizeProviderResponseBody(rawBody: unknown): string {
+  if (rawBody === null || rawBody === undefined) {
+    return '(empty response body)';
+  }
+
+  let text: string;
+  if (typeof rawBody === 'string') {
+    text = rawBody.trim();
+  } else {
+    try {
+      text = JSON.stringify(rawBody);
+    } catch {
+      text = String(rawBody);
+    }
+  }
+
+  if (!text) return '(empty response body)';
+
+  // Scrub any URLs or endpoints that might contain sensitive push tokens
+  text = text.replace(/https?:\/\/[^\s"']+/gi, '[REDACTED_URL]');
+
+  // Scrub authorization tokens, bearer tokens, or secret values
+  text = text.replace(/(?:bearer\s+|token[=:]\s*)[a-zA-Z0-9_\-\.]+/gi, '[REDACTED_TOKEN]');
+  text = text.replace(/(?:key[=:]\s*)[a-zA-Z0-9_\-\.]+/gi, '[REDACTED_KEY]');
+
+  // Cap length to prevent log flooding
+  if (text.length > 500) {
+    text = text.slice(0, 500) + '... (truncated)';
+  }
+
+  return text;
+}
+
 Deno.serve(async (req) => {
   try {
     const expectedSecret = Deno.env.get('WEBHOOK_SECRET');
@@ -212,10 +245,29 @@ Deno.serve(async (req) => {
         });
       } catch (err) {
         failed += 1;
+
         const statusCode =
           err && typeof err === 'object' && 'statusCode' in err
             ? Number((err as { statusCode: unknown }).statusCode)
             : 0;
+
+        const rawBody =
+          err && typeof err === 'object' && 'body' in err
+            ? (err as { body: unknown }).body
+            : undefined;
+
+        const sanitizedBody = sanitizeProviderResponseBody(rawBody);
+        const errorMessage = err instanceof Error ? err.message : String(err);
+
+        // 1, 2, 3: Log HTTP status, sanitized response body, notification type, and target role
+        console.error('[dispatch-web-push] Push provider rejected delivery', {
+          notificationId: record.id,
+          notificationType: record.type,
+          targetRole: record.target_role,
+          statusCode: statusCode || 'unknown',
+          providerResponse: sanitizedBody,
+          errorMessage,
+        });
 
         if (statusCode === 404 || statusCode === 410) {
           await adminClient
@@ -224,12 +276,14 @@ Deno.serve(async (req) => {
             .eq('id', sub.id);
         }
 
+        const summaryError = `HTTP ${statusCode || 'ERR'}: ${sanitizedBody.slice(0, 160)} (${errorMessage.slice(0, 80)})`;
+
         await adminClient.from('notification_delivery_attempts').insert({
           notification_id: record.id,
           user_id: sub.user_id,
           channel: 'web_push',
           status: 'failed',
-          error_message: String(err).slice(0, 300),
+          error_message: summaryError.slice(0, 300),
         });
       }
     }
