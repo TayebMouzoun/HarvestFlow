@@ -1,14 +1,21 @@
 import { useMemo, useState } from 'react';
 import {
+  Calendar,
   ChevronDown,
   Clock,
   Layers,
   Search,
+  X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useHarvestFlow } from '../../context/HarvestFlowContext';
 import type { HistoryEvent, Order, UserRole } from '../../types/domain';
-import { formatDateTime, formatKg } from '../../utils/format';
+import {
+  formatDateTime,
+  formatKg,
+  isWithinDateRange,
+  type DateRangeFilter,
+} from '../../utils/format';
 import { OrderStatusBadge, PriorityBadge } from '../ui/Badges';
 
 const ROLE_VISIBLE_ACTIONS: Record<Exclude<UserRole, 'admin'>, Set<string>> = {
@@ -66,6 +73,7 @@ interface OrderHistoryGroup {
   order?: Order;
   events: HistoryEvent[];
   latestOccurredAt: string;
+  createdAt?: string;
 }
 
 export function HistoryPage() {
@@ -73,6 +81,7 @@ export function HistoryPage() {
   const { state, currentRole, language } = useHarvestFlow();
 
   const [search, setSearch] = useState('');
+  const [dateFilter, setDateFilter] = useState<DateRangeFilter>('all');
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
 
   // 1. Filter events visible to current user's role
@@ -114,11 +123,16 @@ export function HistoryPage() {
           order,
           events: [],
           latestOccurredAt: ev.occurredAt,
+          createdAt: order?.createdAt,
         };
         groupsMap.set(key, group);
       }
 
       group.events.push(ev);
+
+      if (!group.createdAt && ev.actionKey === 'history.actions.order_created') {
+        group.createdAt = ev.occurredAt;
+      }
 
       if (new Date(ev.occurredAt).getTime() > new Date(group.latestOccurredAt).getTime()) {
         group.latestOccurredAt = ev.occurredAt;
@@ -130,6 +144,12 @@ export function HistoryPage() {
       group.events.sort(
         (a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime(),
       );
+
+      // Infer creation date if not already assigned
+      if (!group.createdAt && group.events.length > 0) {
+        const createEv = group.events.find((e) => e.actionKey === 'history.actions.order_created');
+        group.createdAt = createEv ? createEv.occurredAt : group.events[group.events.length - 1].occurredAt;
+      }
     }
 
     // Sort groups so the order with the most recent activity appears first
@@ -144,12 +164,18 @@ export function HistoryPage() {
     return { orderGroups: sortedGroups, generalEvents: generals };
   }, [roleEvents, state.orders]);
 
-  // 3. Search filtering
+  // 3. Search and Creation Date filtering
   const filteredOrderGroups = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return orderGroups;
 
     return orderGroups.filter((group) => {
+      // 1. Date of creation filter
+      if (dateFilter !== 'all' && !isWithinDateRange(group.createdAt, dateFilter)) {
+        return false;
+      }
+
+      // 2. Search query filter
+      if (!q) return true;
       if (group.orderRef.toLowerCase().includes(q)) return true;
       if (group.order?.product.toLowerCase().includes(q)) return true;
       if (group.order?.notes && group.order.notes.toLowerCase().includes(q)) return true;
@@ -159,7 +185,7 @@ export function HistoryPage() {
           t(ev.actionKey, ev.params).toLowerCase().includes(q),
       );
     });
-  }, [orderGroups, search, t]);
+  }, [orderGroups, search, dateFilter, t]);
 
   const toggleGroup = (key: string) => {
     setExpandedGroups((prev) => ({
@@ -211,15 +237,44 @@ export function HistoryPage() {
 
       {/* Filter and Search Bar */}
       {orderGroups.length > 0 && (
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5a6b60]" />
-          <input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t('history.searchPlaceholder')}
-            className="w-full rounded-xl border border-emerald-900/12 bg-white py-2.5 pl-10 pr-4 text-sm text-[#1a241e] placeholder:text-[#5a6b60]/60 outline-none transition focus:border-[#1b5e20] focus:ring-2 focus:ring-emerald-700/10"
-          />
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="relative flex-1 lg:max-w-md">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5a6b60]" />
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t('history.searchPlaceholder')}
+              className="w-full rounded-xl border border-emerald-900/12 bg-white py-2.5 pl-10 pr-4 text-sm text-[#1a241e] placeholder:text-[#5a6b60]/60 outline-none transition focus:border-[#1b5e20] focus:ring-2 focus:ring-emerald-700/10"
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-emerald-900/12 bg-white p-1 shadow-2xs">
+            <span className="hidden items-center gap-1 px-2 text-xs font-semibold text-[#5a6b60] sm:inline-flex">
+              <Calendar className="h-3.5 w-3.5 text-[#1b5e20]" />
+              {t('common.filterByDate')}:
+            </span>
+            {(['all', 'today', 'week', 'month'] as const).map((key) => {
+              const active = dateFilter === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setDateFilter(key)}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                    active
+                      ? 'bg-[#1b5e20] text-white shadow-2xs'
+                      : 'text-[#5a6b60] hover:bg-emerald-50/60 hover:text-[#1a241e]'
+                  }`}
+                >
+                  {key === 'all' && t('common.dateAll')}
+                  {key === 'today' && t('common.dateToday')}
+                  {key === 'week' && t('common.dateWeek')}
+                  {key === 'month' && t('common.dateMonth')}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -228,9 +283,20 @@ export function HistoryPage() {
         <div className="rounded-2xl border border-emerald-900/10 bg-white p-10 text-center text-sm text-[#5a6b60]">
           {t('history.empty')}
         </div>
-      ) : filteredOrderGroups.length === 0 && search.trim() ? (
-        <div className="rounded-2xl border border-emerald-900/10 bg-white p-10 text-center text-sm text-[#5a6b60]">
-          {t('history.noMatchingOrders')}
+      ) : filteredOrderGroups.length === 0 && (search.trim() || dateFilter !== 'all') ? (
+        <div className="rounded-2xl border border-emerald-900/10 bg-white p-10 text-center">
+          <p className="text-sm text-[#5a6b60]">{t('history.noMatchingOrders')}</p>
+          <button
+            type="button"
+            onClick={() => {
+              setSearch('');
+              setDateFilter('all');
+            }}
+            className="mt-3.5 inline-flex items-center gap-1.5 rounded-xl bg-emerald-50 px-4 py-2 text-xs font-semibold text-[#1b5e20] transition hover:bg-emerald-100 active:scale-95"
+          >
+            <X className="h-3.5 w-3.5" />
+            {t('common.resetFilters')}
+          </button>
         </div>
       ) : (
         <div className="space-y-3">
@@ -281,8 +347,18 @@ export function HistoryPage() {
                     </span>
                   </div>
 
-                  {/* Right: Latest activity time + Chevron Arrow */}
-                  <div className="flex shrink-0 items-center justify-between gap-3 sm:justify-end">
+                  {/* Right: Created at + Latest activity time + Chevron Arrow */}
+                  <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 sm:justify-end">
+                    {group.createdAt && (
+                      <span className="inline-flex items-center gap-1.5 text-xs text-[#5a6b60]">
+                        <Calendar className="h-3.5 w-3.5 text-emerald-700/80" />
+                        <span className="hidden xl:inline">{t('common.createdOn')}:</span>
+                        <span className="font-medium text-[#1a241e]">
+                          {formatDateTime(group.createdAt, language)}
+                        </span>
+                      </span>
+                    )}
+
                     <span className="inline-flex items-center gap-1.5 text-xs text-[#5a6b60]">
                       <Clock className="h-3.5 w-3.5" />
                       <span className="hidden md:inline">{t('history.latestActivity')}:</span>

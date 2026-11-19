@@ -33,3 +33,30 @@ export function getMinutesSince(iso?: string): number {
 export function makeId(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 }
+
+export type DateRangeFilter = 'all' | 'today' | 'week' | 'month';
+
+export function isWithinDateRange(
+  dateOrIso: string | Date | null | undefined,
+  filter: DateRangeFilter,
+): boolean {
+  if (filter === 'all' || !dateOrIso) return true;
+  const d = typeof dateOrIso === 'string' ? new Date(dateOrIso) : dateOrIso;
+  const time = d.getTime();
+  if (Number.isNaN(time)) return true;
+
+  const now = new Date();
+  if (filter === 'today') {
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    return time >= startOfToday;
+  }
+  if (filter === 'week') {
+    const sevenDaysAgo = now.getTime() - 7 * 24 * 60 * 60 * 1000;
+    return time >= sevenDaysAgo;
+  }
+  if (filter === 'month') {
+    const thirtyDaysAgo = now.getTime() - 30 * 24 * 60 * 60 * 1000;
+    return time >= thirtyDaysAgo;
+  }
+  return true;
+}

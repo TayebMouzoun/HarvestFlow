@@ -161,6 +161,13 @@ export const es: TranslationDict = {
     required: 'Obligatorio',
     filterAll: 'Todos',
     filterUrgent: 'Urgentes',
+    dateAll: 'Todas las fechas',
+    dateToday: 'Hoy',
+    dateWeek: 'Últimos 7 días',
+    dateMonth: 'Últimos 30 días',
+    filterByDate: 'Fecha de creación',
+    createdOn: 'Creado el',
+    resetFilters: 'Restablecer filtros',
     searchPlaceholder: 'Buscar referencia o producto…',
   },
   status: {

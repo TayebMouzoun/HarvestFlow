@@ -159,6 +159,13 @@ export const fr = {
     required: 'Requis',
     filterAll: 'Tous',
     filterUrgent: 'Urgents',
+    dateAll: 'Toutes les dates',
+    dateToday: 'Aujourd’hui',
+    dateWeek: '7 derniers jours',
+    dateMonth: '30 derniers jours',
+    filterByDate: 'Date de création',
+    createdOn: 'Créée le',
+    resetFilters: 'Réinitialiser les filtres',
     searchPlaceholder: 'Rechercher une référence ou un produit…',
   },
   status: {
