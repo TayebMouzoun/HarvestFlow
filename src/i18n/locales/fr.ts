@@ -106,7 +106,7 @@ export const fr = {
     adminDeptBanner: 'Vue Administrateur - Département : {{dept}}',
     adminSwitchDept: 'Basculer vers un département :',
     adminFullAccessNote: 'Seul l’Administrateur peut consulter et opérer tous les départements.',
-    teamOrdersTitle: 'Toutes les commandes de l’équipe',
+    teamOrdersTitle: 'Toutes les commandes',
     teamOrdersSubtitle:
       'Suivez en lecture seule toutes les commandes créées, leur répartition par ferme et leur avancement en temps réel.',
     teamOrdersBadge: 'Vue équipe',

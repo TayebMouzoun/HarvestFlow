@@ -108,7 +108,7 @@ export const es: TranslationDict = {
     adminDeptBanner: 'Vista Administrador - Departamento: {{dept}}',
     adminSwitchDept: 'Cambiar de departamento:',
     adminFullAccessNote: 'Solo el Administrador puede consultar y operar todos los departamentos.',
-    teamOrdersTitle: 'Todos los pedidos del equipo',
+    teamOrdersTitle: 'Todos los pedidos',
     teamOrdersSubtitle:
       'Consulta en solo lectura todos los pedidos creados, su reparto por finca y el avance en tiempo real.',
     teamOrdersBadge: 'Vista equipo',
